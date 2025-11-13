@@ -8,8 +8,8 @@ import com.panchospring.repository.MascotaRepository;
 import com.panchospring.service.mapper.MascotaMapper;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -20,27 +20,29 @@ public class MascotaService {
     private final DuenioRepository duenioRepository;
     private final MascotaMapper mapper;
 
-    public ResponseEntity<List<MascotaDto>> getMascotas() {
-        return ResponseEntity.ok(mascotaRepository.findAll().stream().map(mapper::toMascotaDto).toList());
+    public List<MascotaDto> getMascotas() {
+        return mascotaRepository.findAll().stream().map(mapper::toMascotaDto).toList();
     }
 
-    public ResponseEntity<MascotaDto> crearMascota(MascotaDto mascota) {
-        Duenio duenio = duenioRepository.findById(mascota.duenioId()).orElseThrow(() -> new EntityNotFoundException("No existe un dueño con id: " + mascota.duenioId()));
+    @Transactional
+    public MascotaDto crearMascota(MascotaDto mascota) {
+        Duenio duenio = duenioRepository.findById(mascota.duenioId())
+                .orElseThrow(() -> new EntityNotFoundException("No existe un dueño con id: " + mascota.duenioId()));
         String tipoMascota = mascota.tipoMascota();
-        Mascota resultado;
-        if (tipoMascota.equals("normal")) resultado = mapper.toMascota(mascota, duenio);
-        else resultado = mapper.toMascotaExotica(mascota, duenio);
+        Mascota resultado = tipoMascota.equals("normal") ? mapper.toMascota(mascota, duenio) : mapper.toMascotaExotica(mascota, duenio);
         mascotaRepository.save(resultado);
-        return ResponseEntity.ok(mascota);
+        return mapper.toMascotaDto(resultado);
     }
 
-    public ResponseEntity<String> eliminarMascota(int idMascota) {
+    @Transactional
+    public void eliminarMascota(int idMascota) {
         mascotaRepository.deleteById(idMascota);
-        return ResponseEntity.ok("Mascota eliminada: " + idMascota);
     }
 
-    public ResponseEntity<MascotaDto> actualizarMascota(int idMascota, MascotaDto mascotaBody) {
-        Mascota mascotaBD = mascotaRepository.findById(idMascota).orElseThrow(() -> new EntityNotFoundException("No existe un mascota con id: " + idMascota));
+    @Transactional
+    public MascotaDto actualizarMascota(int idMascota, MascotaDto mascotaBody) {
+        Mascota mascotaBD = mascotaRepository.findById(idMascota)
+                .orElseThrow(() -> new EntityNotFoundException("No existe un mascota con id: " + idMascota));
         mascotaBD.setNombre(mascotaBody.nombre());
         mascotaBD.setLocalidad(mascotaBody.localidad());
         mascotaBD.setDescripcion(mascotaBody.descripcion());
@@ -48,6 +50,6 @@ public class MascotaService {
         mascotaBD.setCodRiac(mascotaBody.codRiac());
         mascotaBD.setNumPoliza(mascotaBody.numPoliza());
         mascotaRepository.save(mascotaBD);
-        return ResponseEntity.ok(mascotaBody);
+        return mapper.toMascotaDto(mascotaBD);
     }
 }

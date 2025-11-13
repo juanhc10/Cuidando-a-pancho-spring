@@ -2,6 +2,7 @@ package com.panchospring.service;
 
 import com.panchospring.exception.MascotaFavoritaException;
 import com.panchospring.exception.PuntosInsuficientesException;
+import com.panchospring.model.dto.cuidador.CuidadorDto;
 import com.panchospring.model.dto.mascota.MascotaDto;
 import com.panchospring.model.entity.Cuidador;
 import com.panchospring.model.entity.Mascota;
@@ -9,11 +10,10 @@ import com.panchospring.model.entity.Premio;
 import com.panchospring.repository.CuidadorRepository;
 import com.panchospring.repository.MascotaRepository;
 import com.panchospring.repository.PremioRepository;
+import com.panchospring.service.mapper.CuidadorMapper;
 import com.panchospring.service.mapper.MascotaMapper;
-import com.panchospring.service.mapper.PremioMapper;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,77 +27,90 @@ import java.util.stream.Collectors;
 public class CuidadorService {
     private final CuidadorRepository cuidadorRepository;
     private final MascotaMapper mascotaMapper;
+    private final CuidadorMapper cuidadorMapper;
     private final BCryptPasswordEncoder encoder;
     private final MascotaRepository mascotaRepository;
     private final PremioRepository premioRepository;
-    private final PremioMapper premioMapper;
 
-    public ResponseEntity<List<Cuidador>> getCuidadores() {
-        return ResponseEntity.ok(cuidadorRepository.findAll());
+    public List<CuidadorDto> getCuidadores() {
+        return cuidadorRepository.findAll().stream()
+                .map(cuidadorMapper::toCuidadorDto)
+                .toList();
     }
 
     @Transactional
-    public ResponseEntity<Cuidador> habilitarCuidadoExotica(String nombre) {
+    public CuidadorDto habilitarCuidadoExotica(String nombre) {
         Cuidador cuidador = getCuidadorByNombre(nombre);
         cuidador.setPuedeCuidarExotica(true);
         cuidadorRepository.save(cuidador);
-        return ResponseEntity.ok(cuidador);
+        return cuidadorMapper.toCuidadorDto(cuidador);
     }
 
     @Transactional
-    public ResponseEntity<Cuidador> actualizarCuidador(String nombre, Cuidador cuidadorBody) {
+    public CuidadorDto actualizarCuidador(String nombre, CuidadorDto cuidadorBody) {
         Cuidador cuidadorBD = getCuidadorByNombre(nombre);
-        cuidadorBD.setNombre(cuidadorBody.getNombre());
-        if (!encoder.matches(cuidadorBody.getContrasenia(), cuidadorBD.getContrasenia()))
-            cuidadorBD.setContrasenia(encoder.encode(cuidadorBody.getContrasenia()));
-        cuidadorBD.setPuedeCuidarExotica(true);
+        cuidadorBD.setNombre(cuidadorBody.nombre());
+        cuidadorBD.setIdioma(cuidadorBody.idioma());
+        cuidadorBD.setPuedeCuidarExotica(cuidadorBody.puedeCuidarExotica());
         cuidadorRepository.save(cuidadorBD);
-        return ResponseEntity.ok(cuidadorBD);
+        return cuidadorMapper.toCuidadorDto(cuidadorBD);
     }
 
     private Cuidador getCuidadorByNombre(String nombre) {
-        return cuidadorRepository.findByNombre(nombre).orElseThrow(() -> new EntityNotFoundException("No hay un cuidador con nombre: " + nombre));
+        return cuidadorRepository.findByNombre(nombre)
+                .orElseThrow(() -> new EntityNotFoundException("No hay un cuidador con nombre: " + nombre));
     }
 
     private Mascota getMascotaById(int idMascota) {
-        return mascotaRepository.findById(idMascota).orElseThrow(() -> new EntityNotFoundException("No hay una mascota con id: " + idMascota));
+        return mascotaRepository.findById(idMascota)
+                .orElseThrow(() -> new EntityNotFoundException("No hay una mascota con id: " + idMascota));
     }
 
     @Transactional
-    public ResponseEntity<Set<MascotaDto>> aniadirMascotaFavorita(String nombreCuidador, int idMascota) {
+    public Set<MascotaDto> aniadirMascotaFavorita(String nombreCuidador, int idMascota) {
         Cuidador cuidador = getCuidadorByNombre(nombreCuidador);
         Mascota mascota = getMascotaById(idMascota);
         Set<Mascota> mascotasFavoritas = cuidador.getMascotasFavoritas();
-        if (mascotasFavoritas.add(mascota))
-            return ResponseEntity.ok(mascotasFavoritas.stream().map(mascotaMapper::toMascotaDto).collect(Collectors.toSet()));
+        if (mascotasFavoritas.add(mascota)) {
+            cuidadorRepository.save(cuidador);
+            return mascotasFavoritas.stream()
+                    .map(mascotaMapper::toMascotaDto)
+                    .collect(Collectors.toSet());
+        }
         throw new MascotaFavoritaException("La mascota favorita ya está añadida");
     }
 
     @Transactional
-    public ResponseEntity<Set<MascotaDto>> eliminarMascotaFavorita(String nombreCuidador, int idMascota) {
+    public Set<MascotaDto> eliminarMascotaFavorita(String nombreCuidador, int idMascota) {
         Cuidador cuidador = getCuidadorByNombre(nombreCuidador);
         Mascota mascota = getMascotaById(idMascota);
         Set<Mascota> mascotasFavoritas = cuidador.getMascotasFavoritas();
-        if (mascotasFavoritas.remove(mascota))
-            return ResponseEntity.ok(mascotasFavoritas.stream().map(mascotaMapper::toMascotaDto).collect(Collectors.toSet()));
+        if (mascotasFavoritas.remove(mascota)) {
+            cuidadorRepository.save(cuidador);
+            return mascotasFavoritas.stream()
+                    .map(mascotaMapper::toMascotaDto)
+                    .collect(Collectors.toSet());
+        }
         throw new MascotaFavoritaException("La mascota no está entre las favoritas");
     }
 
-
-    public ResponseEntity<Set<MascotaDto>> getFavoritas(String nombreCuidador) {
-        return ResponseEntity.ok(getCuidadorByNombre(nombreCuidador).getMascotasFavoritas().stream().map(mascotaMapper::toMascotaDto).collect(Collectors.toSet()));
+    public Set<MascotaDto> getFavoritas(String nombreCuidador) {
+        return getCuidadorByNombre(nombreCuidador).getMascotasFavoritas().stream()
+                .map(mascotaMapper::toMascotaDto)
+                .collect(Collectors.toSet());
     }
 
     @Transactional
-    public ResponseEntity<Integer> canjearPremio(String nombreCuidador, int idPremio) {
+    public int canjearPremio(String nombreCuidador, int idPremio) {
         Cuidador cuidador = getCuidadorByNombre(nombreCuidador);
-        Premio premio = premioRepository.findById(idPremio).orElseThrow(() -> new EntityNotFoundException("No existe un premio con id: " + idPremio));
+        Premio premio = premioRepository.findById(idPremio)
+                .orElseThrow(() -> new EntityNotFoundException("No existe un premio con id: " + idPremio));
         if (cuidador.getPanchoPuntos() < premio.getCoste())
             throw new PuntosInsuficientesException("Puntos insuficientes para canjear el premio");
         cuidador.setPanchoPuntos(cuidador.getPanchoPuntos() - premio.getCoste());
         premio.setCuidador(cuidador);
         premioRepository.save(premio);
         cuidadorRepository.save(cuidador);
-        return ResponseEntity.ok(premio.getId());
+        return premio.getId();
     }
 }

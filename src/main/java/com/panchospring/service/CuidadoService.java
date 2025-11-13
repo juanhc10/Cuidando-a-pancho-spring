@@ -1,10 +1,13 @@
 package com.panchospring.service;
 
+import com.panchospring.model.dto.cuidado.CuidadoDto;
 import com.panchospring.model.entity.Cuidado;
 import com.panchospring.repository.CuidadoRepository;
+import com.panchospring.service.mapper.CuidadoMapper;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -12,8 +15,23 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CuidadoService {
     private final CuidadoRepository cuidadoRepository;
+    private final CuidadoMapper cuidadoMapper;
 
-    public ResponseEntity<List<Cuidado>> getCuidados() {
-        return ResponseEntity.ok(cuidadoRepository.findAll());
+    public List<CuidadoDto> getCuidados() {
+        return cuidadoRepository.findAll().stream()
+                .map(cuidadoMapper::toCuidadoDto)
+                .toList();
+    }
+
+    @Transactional
+    public CuidadoDto crearCuidado(Cuidado cuidado) {
+        Cuidado saved = cuidadoRepository.save(cuidado);
+        return cuidadoMapper.toCuidadoDto(saved);
+    }
+
+    public CuidadoDto getCuidadoById(int id) {
+        Cuidado cuidado = cuidadoRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("No existe un cuidado con id: " + id));
+        return cuidadoMapper.toCuidadoDto(cuidado);
     }
 }

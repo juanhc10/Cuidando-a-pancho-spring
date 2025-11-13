@@ -1,7 +1,7 @@
 package com.panchospring.controller;
 
 import com.panchospring.model.dto.cuidador.CuidadorDto;
-import com.panchospring.model.entity.Duenio;
+import com.panchospring.model.dto.duenio.DuenioDto;
 import com.panchospring.service.DuenioService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,22 +17,22 @@ public class DuenioController {
     private final DuenioService service;
 
     @GetMapping
-    public List<Duenio> getDuenios() {
-        return service.getDuenios();
+    public ResponseEntity<List<DuenioDto>> getDuenios() {
+        return ResponseEntity.ok(service.getDuenios());
     }
 
     @PatchMapping("add/{nombreDuenio}/{idCuidador}")
     public ResponseEntity<Set<CuidadorDto>> aniadirCuidadorFavorita(@PathVariable String nombreDuenio, @PathVariable int idCuidador) {
-        return service.aniadirCuidadorFavorita(nombreDuenio, idCuidador);
+        return ResponseEntity.ok(service.aniadirCuidadorFavorita(nombreDuenio, idCuidador));
     }
 
     @PatchMapping("eliminar/{nombreDuenio}/{idCuidador}")
     public ResponseEntity<Set<CuidadorDto>> eliminarCuidadorFavorita(@PathVariable String nombreDuenio, @PathVariable int idCuidador) {
-        return service.eliminarCuidadorFavorita(nombreDuenio, idCuidador);
+        return ResponseEntity.ok(service.eliminarCuidadorFavorita(nombreDuenio, idCuidador));
     }
 
     @GetMapping("/favoritas/{nombreDuenio}")
     public ResponseEntity<Set<CuidadorDto>> getFavoritas(@PathVariable String nombreDuenio) {
-        return service.getFavoritas(nombreDuenio);
+        return ResponseEntity.ok(service.getFavoritas(nombreDuenio));
     }
 }
