@@ -50,7 +50,7 @@ public class CuidadorService {
         cuidadorBD.setNombre(cuidadorBody.getNombre());
         if (!encoder.matches(cuidadorBody.getContrasenia(), cuidadorBD.getContrasenia()))
             cuidadorBD.setContrasenia(encoder.encode(cuidadorBody.getContrasenia()));
-        cuidadorBD.setPuedeCuidarExotica(true);
+        cuidadorBD.setPuedeCuidarExotica(cuidadorBody.isPuedeCuidarExotica());
         cuidadorRepository.save(cuidadorBD);
         return ResponseEntity.ok(cuidadorBD);
     }

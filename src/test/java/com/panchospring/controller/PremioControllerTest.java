@@ -46,7 +46,7 @@ class PremioControllerTest {
     @Test
     @DisplayName("Debe crear un producto")
     void crearProducto() throws Exception {
-        ProductoDto productoDto = new ProductoDto("Juguete", "Juguete para perro", 100);
+        ProductoDto productoDto = new ProductoDto("Juguete", "Juguete para perro");
         Mockito.when(premioService.crearProducto(any(ProductoDto.class)))
                 .thenReturn(org.springframework.http.ResponseEntity.ok(productoDto));
 

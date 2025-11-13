@@ -1,7 +1,6 @@
 package com.panchospring.model.dto.premio;
 
 import com.panchospring.model.entity.Horario;
-import com.panchospring.model.entity.PremioDto;
 import com.panchospring.model.entity.Promocion;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;

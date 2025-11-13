@@ -1,5 +1,6 @@
-package com.panchospring.model.entity;
+package com.panchospring.model.dto.premio;
 
+import com.panchospring.model.entity.Premio;
 import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

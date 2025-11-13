@@ -10,7 +10,10 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
 
 @Service
@@ -24,14 +27,15 @@ public class MascotaService {
         return ResponseEntity.ok(mascotaRepository.findAll().stream().map(mapper::toMascotaDto).toList());
     }
 
+
+    @Transactional
     public ResponseEntity<MascotaDto> crearMascota(MascotaDto mascota) {
         Duenio duenio = duenioRepository.findById(mascota.duenioId()).orElseThrow(() -> new EntityNotFoundException("No existe un dueño con id: " + mascota.duenioId()));
         String tipoMascota = mascota.tipoMascota();
-        Mascota resultado;
-        if (tipoMascota.equals("normal")) resultado = mapper.toMascota(mascota, duenio);
-        else resultado = mapper.toMascotaExotica(mascota, duenio);
+        Mascota resultado = tipoMascota.equals("normal") ? mapper.toMascota(mascota, duenio) : mapper.toMascotaExotica(mascota, duenio);
         mascotaRepository.save(resultado);
-        return ResponseEntity.ok(mascota);
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(resultado.getId()).toUri();
+        return ResponseEntity.created(location).body(mascota);
     }
 
     public ResponseEntity<String> eliminarMascota(int idMascota) {

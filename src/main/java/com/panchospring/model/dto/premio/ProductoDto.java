@@ -1,6 +1,5 @@
 package com.panchospring.model.dto.premio;
 
-import com.panchospring.model.entity.PremioDto;
 import com.panchospring.model.entity.Producto;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;

@@ -17,8 +17,8 @@ public class DuenioController {
     private final DuenioService service;
 
     @GetMapping
-    public List<Duenio> getDuenios() {
-        return service.getDuenios();
+    public ResponseEntity<List<Duenio>> getDuenios() {
+        return ResponseEntity.ok(service.getDuenios());
     }
 
     @PatchMapping("add/{nombreDuenio}/{idCuidador}")
