@@ -8,7 +8,7 @@
         <version>3.3.2</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.moxi</groupId>
+    <groupId>com.panchospring</groupId>
     <artifactId>panchoSpring</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>panchoSpring</name>
@@ -66,6 +66,11 @@
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-core</artifactId>
             <version>6.3.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>runtime</scope>
         </dependency>
     </dependencies>
 
