@@ -28,8 +28,8 @@ public class DataInitializationConfig {
     @Bean
     CommandLineRunner initDatabase(UsuarioRepository usuarioRepository, MascotaRepository mascotaRepository) {
         return args -> {
-            Duenio juan = Duenio.builder().nombre("juan").contrasenia(encoder.encode("123")).idioma(ESPANIOL).build();
-            Cuidador maria = Cuidador.builder().nombre("maria").contrasenia(encoder.encode("123")).idioma(INGLES).panchoPuntos(600).build();
+            Duenio juan = Duenio.builder().nombre("Juan").contrasenia(encoder.encode("123")).idioma(ESPANIOL).build();
+            Cuidador maria = Cuidador.builder().nombre("Maria").contrasenia(encoder.encode("123")).idioma(INGLES).panchoPuntos(600).puedeCuidarExotica(true).build();
             Duenio carlos = Duenio.builder().nombre("Carlos").contrasenia(encoder.encode("password3")).idioma(EUSKERA).build();
             Cuidador laura = Cuidador.builder().nombre("Laura").contrasenia(encoder.encode("password4")).idioma(GALLEGO).panchoPuntos(600).build();
             Duenio ana = Duenio.builder().nombre("Ana").contrasenia(encoder.encode("password5")).idioma(ESPANIOL).build();
