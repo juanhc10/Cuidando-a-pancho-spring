@@ -15,6 +15,8 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PremioDto implements Serializable {
+    private int id;
+    private String tipoPremio;
     @Positive(message = "El coste tiene que ser positivo")
     protected int coste;
 }

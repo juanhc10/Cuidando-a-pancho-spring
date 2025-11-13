@@ -1,13 +1,18 @@
 package com.panchospring.service.mapper;
 
+import com.panchospring.model.dto.premio.PremioDto;
 import com.panchospring.model.dto.premio.ProductoDto;
 import com.panchospring.model.dto.premio.PromocionDto;
+import com.panchospring.model.entity.Premio;
 import com.panchospring.model.entity.Producto;
 import com.panchospring.model.entity.Promocion;
 import org.springframework.stereotype.Service;
 
 @Service
 public class PremioMapper {
+    public PremioDto toPremioDto(Premio premio) {
+        return new PremioDto(premio.getId(), premio.getClass().getSimpleName().toLowerCase(), premio.getCoste());
+    }
 
     public Producto toProducto(ProductoDto premio) {
         return Producto.builder()

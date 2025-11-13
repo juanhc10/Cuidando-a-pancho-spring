@@ -36,7 +36,7 @@ class MascotaControllerTest {
     void getMascotas() throws Exception {
         MascotaDto mascotaDto = new MascotaDto("Pedro", "Madrid", "Perro", LocalDateTime.now(), "1234", 5678, 1, "normal");
         Mockito.when(mascotaService.getMascotas())
-                .thenReturn(org.springframework.http.ResponseEntity.ok(List.of(mascotaDto)));
+                .thenReturn(List.of(mascotaDto));
 
         mockMvc.perform(get("/api/v1/mascotas"))
                 .andExpect(status().isOk())
@@ -48,20 +48,19 @@ class MascotaControllerTest {
     void crearMascota() throws Exception {
         MascotaDto mascotaDto = new MascotaDto("Pedro", "Madrid", "Perro", LocalDateTime.now(), "1234", 5678, 1, "normal");
         Mockito.when(mascotaService.crearMascota(any(MascotaDto.class)))
-                .thenReturn(org.springframework.http.ResponseEntity.ok(mascotaDto));
+                .thenReturn(mascotaDto);
 
         mockMvc.perform(post("/api/v1/mascotas")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(mascotaDto)))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.nombre").value("Pedro"));
     }
 
     @Test
     @DisplayName("Debe eliminar una mascota")
     void eliminarMascota() throws Exception {
-        Mockito.when(mascotaService.eliminarMascota(1))
-                .thenReturn(org.springframework.http.ResponseEntity.ok("Mascota eliminada: 1"));
+        Mockito.doNothing().when(mascotaService).eliminarMascota(1);
 
         mockMvc.perform(delete("/api/v1/mascotas/1"))
                 .andExpect(status().isOk())
@@ -73,7 +72,7 @@ class MascotaControllerTest {
     void actualizarMascota() throws Exception {
         MascotaDto mascotaDto = new MascotaDto("Pedro", "Madrid", "Perro", LocalDateTime.now(), "1234", 5678, 1, "normal");
         Mockito.when(mascotaService.actualizarMascota(Mockito.eq(1), any(MascotaDto.class)))
-                .thenReturn(org.springframework.http.ResponseEntity.ok(mascotaDto));
+                .thenReturn(mascotaDto);
 
         mockMvc.perform(put("/api/v1/mascotas/1")
                         .contentType(MediaType.APPLICATION_JSON)

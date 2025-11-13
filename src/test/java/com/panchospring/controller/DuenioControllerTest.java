@@ -1,7 +1,7 @@
 package com.panchospring.controller;
 
 import com.panchospring.model.dto.cuidador.CuidadorDto;
-import com.panchospring.model.entity.Duenio;
+import com.panchospring.model.dto.duenio.DuenioDto;
 import com.panchospring.service.DuenioService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -9,7 +9,6 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
@@ -32,9 +31,8 @@ class DuenioControllerTest {
     @Test
     @DisplayName("Debe devolver la lista de dueños")
     void getDuenios() throws Exception {
-        Duenio duenio = new Duenio();
-        duenio.setNombre("juan");
-        Mockito.when(duenioService.getDuenios()).thenReturn(List.of(duenio));
+        DuenioDto duenioDto = DuenioDto.builder().nombre("juan").build();
+        Mockito.when(duenioService.getDuenios()).thenReturn(List.of(duenioDto));
 
         mockMvc.perform(get("/api/v1/duenios"))
                 .andExpect(status().isOk())
@@ -46,7 +44,7 @@ class DuenioControllerTest {
     void aniadirCuidadorFavorita() throws Exception {
         CuidadorDto cuidadorDto = CuidadorDto.builder().nombre("maria").build();
         Mockito.when(duenioService.aniadirCuidadorFavorita("juan", 1))
-                .thenReturn(org.springframework.http.ResponseEntity.ok(Set.of(cuidadorDto)));
+                .thenReturn(Set.of(cuidadorDto));
 
         mockMvc.perform(patch("/api/v1/duenios/add/juan/1"))
                 .andExpect(status().isOk())
@@ -58,7 +56,7 @@ class DuenioControllerTest {
     void eliminarCuidadorFavorita() throws Exception {
         CuidadorDto cuidadorDto = CuidadorDto.builder().nombre("maria").build();
         Mockito.when(duenioService.eliminarCuidadorFavorita("juan", 1))
-                .thenReturn(org.springframework.http.ResponseEntity.ok(Set.of(cuidadorDto)));
+                .thenReturn(Set.of(cuidadorDto));
 
         mockMvc.perform(patch("/api/v1/duenios/eliminar/juan/1"))
                 .andExpect(status().isOk())
@@ -70,7 +68,7 @@ class DuenioControllerTest {
     void getFavoritas() throws Exception {
         CuidadorDto cuidadorDto = CuidadorDto.builder().nombre("maria").build();
         Mockito.when(duenioService.getFavoritas("juan"))
-                .thenReturn(org.springframework.http.ResponseEntity.ok(Set.of(cuidadorDto)));
+                .thenReturn(Set.of(cuidadorDto));
 
         mockMvc.perform(get("/api/v1/duenios/favoritas/juan"))
                 .andExpect(status().isOk())

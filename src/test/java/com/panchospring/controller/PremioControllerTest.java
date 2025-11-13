@@ -3,7 +3,7 @@ package com.panchospring.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.panchospring.model.dto.premio.ProductoDto;
 import com.panchospring.model.dto.premio.PromocionDto;
-import com.panchospring.model.entity.Premio;
+import com.panchospring.model.dto.premio.PremioDto;
 import com.panchospring.service.PremioService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -35,12 +35,13 @@ class PremioControllerTest {
     @Test
     @DisplayName("Debe devolver la lista de premios")
     void getPremios() throws Exception {
-        Premio premio = new Premio() {};
+        PremioDto premioDto = new PremioDto(1, "producto", 100);
         Mockito.when(premioService.getPremios())
-                .thenReturn(org.springframework.http.ResponseEntity.ok(List.of(premio)));
+                .thenReturn(List.of(premioDto));
 
         mockMvc.perform(get("/api/v1/premios"))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(1));
     }
 
     @Test
@@ -48,12 +49,12 @@ class PremioControllerTest {
     void crearProducto() throws Exception {
         ProductoDto productoDto = new ProductoDto("Juguete", "Juguete para perro");
         Mockito.when(premioService.crearProducto(any(ProductoDto.class)))
-                .thenReturn(org.springframework.http.ResponseEntity.ok(productoDto));
+                .thenReturn(productoDto);
 
         mockMvc.perform(post("/api/v1/premios/producto")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(productoDto)))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.nombre").value("Juguete"));
     }
 
@@ -62,11 +63,11 @@ class PremioControllerTest {
     void crearPromocion() throws Exception {
         PromocionDto promocionDto = new PromocionDto();
         Mockito.when(premioService.crearPromocion(any(PromocionDto.class)))
-                .thenReturn(org.springframework.http.ResponseEntity.ok(promocionDto));
+                .thenReturn(promocionDto);
 
         mockMvc.perform(post("/api/v1/premios/promocion")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(promocionDto)))
-                .andExpect(status().isOk());
+                .andExpect(status().isCreated());
     }
 }

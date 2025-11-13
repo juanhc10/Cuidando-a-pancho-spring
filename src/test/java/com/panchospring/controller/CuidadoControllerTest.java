@@ -1,7 +1,8 @@
 package com.panchospring.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.panchospring.model.entity.Cuidado;
+import com.panchospring.model.dto.cuidado.CuidadoDto;
+import com.panchospring.model.entity.Horario;
 import com.panchospring.service.CuidadoService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,6 +13,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -33,9 +35,9 @@ class CuidadoControllerTest {
     @Test
     @DisplayName("Debe devolver la lista de cuidados")
     void getCuidados() throws Exception {
-        Cuidado cuidado = new Cuidado();
+        CuidadoDto cuidado = new CuidadoDto(1, new Horario(), new BigDecimal(1), false, 10, 20, 30);
         Mockito.when(cuidadoService.getCuidados())
-                .thenReturn(org.springframework.http.ResponseEntity.ok(List.of(cuidado)));
+                .thenReturn(List.of(cuidado));
 
         mockMvc.perform(get("/api/v1/cuidados"))
                 .andExpect(status().isOk());
@@ -44,14 +46,13 @@ class CuidadoControllerTest {
     @Test
     @DisplayName("Debe crear un cuidado")
     void crearCuidado() throws Exception {
-        Cuidado cuidado = new Cuidado();
-        cuidado.setId(1);
-        Mockito.when(cuidadoService.crearCuidado(any(Cuidado.class)))
-                .thenReturn(cuidado);
+        CuidadoDto cuidadoDto = new CuidadoDto(1, new Horario(), new BigDecimal(1), false, 10, 20, 30);
+        Mockito.when(cuidadoService.crearCuidado(any()))
+                .thenReturn(cuidadoDto);
 
         mockMvc.perform(post("/api/v1/cuidados")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(cuidado)))
+                        .content(objectMapper.writeValueAsString(cuidadoDto)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(1));
     }

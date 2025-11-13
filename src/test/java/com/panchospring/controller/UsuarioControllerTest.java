@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.panchospring.model.dto.usuario.UsuarioLogin;
 import com.panchospring.model.dto.usuario.UsuarioRegistro;
 import com.panchospring.model.dto.usuario.UsuarioResponse;
+import com.panchospring.model.entity.Idioma;
 import com.panchospring.service.UsuarioService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -35,9 +36,9 @@ class UsuarioControllerTest {
     @Test
     @DisplayName("Debe devolver la lista de usuarios")
     void getUsuarios() throws Exception {
-        UsuarioResponse usuarioResponse = new UsuarioResponse(1, "juan", "123", com.panchospring.model.entity.Idioma.ESPANIOL);
+        UsuarioResponse usuarioResponse = new UsuarioResponse(1, "juan", null, Idioma.ESPANIOL);
         Mockito.when(usuarioService.getUsuarios())
-                .thenReturn(org.springframework.http.ResponseEntity.ok(List.of(usuarioResponse)));
+                .thenReturn(List.of(usuarioResponse));
 
         mockMvc.perform(get("/api/v1/usuarios"))
                 .andExpect(status().isOk())
@@ -47,9 +48,9 @@ class UsuarioControllerTest {
     @Test
     @DisplayName("Debe devolver un usuario por id")
     void getUsuario() throws Exception {
-        UsuarioResponse usuarioResponse = new UsuarioResponse(1, "juan", "123", com.panchospring.model.entity.Idioma.ESPANIOL);
+        UsuarioResponse usuarioResponse = new UsuarioResponse(1, "juan", null, Idioma.ESPANIOL);
         Mockito.when(usuarioService.getUsuario(1))
-                .thenReturn(org.springframework.http.ResponseEntity.ok(usuarioResponse));
+                .thenReturn(usuarioResponse);
 
         mockMvc.perform(get("/api/v1/usuarios/1"))
                 .andExpect(status().isOk())
@@ -59,15 +60,15 @@ class UsuarioControllerTest {
     @Test
     @DisplayName("Debe registrar un usuario")
     void registrarUsuario() throws Exception {
-        UsuarioRegistro usuarioRegistro = new UsuarioRegistro("juan", "123", com.panchospring.model.entity.Idioma.ESPANIOL, "duenio");
-        UsuarioResponse usuarioResponse = new UsuarioResponse(1, "juan", "123", com.panchospring.model.entity.Idioma.ESPANIOL);
+        UsuarioRegistro usuarioRegistro = new UsuarioRegistro("juan", "123", Idioma.ESPANIOL, "duenio");
+        UsuarioResponse usuarioResponse = new UsuarioResponse(1, "juan", null, Idioma.ESPANIOL);
         Mockito.when(usuarioService.registrarUsuario(any(UsuarioRegistro.class)))
-                .thenReturn(org.springframework.http.ResponseEntity.ok(usuarioResponse));
+                .thenReturn(usuarioResponse);
 
         mockMvc.perform(post("/api/v1/usuarios")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(usuarioRegistro)))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.nombre").value("juan"));
     }
 
@@ -75,9 +76,9 @@ class UsuarioControllerTest {
     @DisplayName("Debe hacer login")
     void login() throws Exception {
         UsuarioLogin usuarioLogin = new UsuarioLogin("juan", "123");
-        UsuarioResponse usuarioResponse = new UsuarioResponse(1, "juan", "123", com.panchospring.model.entity.Idioma.ESPANIOL);
+        UsuarioResponse usuarioResponse = new UsuarioResponse(1, "juan", null, Idioma.ESPANIOL);
         Mockito.when(usuarioService.login(any(UsuarioLogin.class)))
-                .thenReturn(org.springframework.http.ResponseEntity.ok(usuarioResponse));
+                .thenReturn(usuarioResponse);
 
         mockMvc.perform(get("/api/v1/usuarios/login")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -89,8 +90,7 @@ class UsuarioControllerTest {
     @Test
     @DisplayName("Debe cambiar el idioma")
     void cambiarIdioma() throws Exception {
-        Mockito.when(usuarioService.cambiarIdioma("juan", "ingles"))
-                .thenReturn(org.springframework.http.ResponseEntity.ok("Idioma cambiado a ingles"));
+        Mockito.doNothing().when(usuarioService).cambiarIdioma("juan", "ingles");
 
         mockMvc.perform(patch("/api/v1/usuarios/juan?idioma=ingles"))
                 .andExpect(status().isOk())
